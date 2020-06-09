@@ -1,0 +1,10 @@
+#!/bin/sh -e
+# TODO wait for connection or wpa_supplicant???? can check with ping before starting
+exec 2>&1
+ping -c3 -W33 -q 1.1.1.1 > /dev/null || (echo "WAN ping failed..." && quit 1)
+cd server
+exec openvpn --config active.ovpn \
+	--script-security 2 \
+	--route-up ../route/addlan.sh \
+	--up up.sh \
+	--down down.sh

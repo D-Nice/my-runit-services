@@ -1,0 +1,12 @@
+#!/bin/sh -e
+exec 2>&1
+TF=/var/cache/snooze/borgmatic-light
+snooze -H13 -M30 -s1d -t "$TF"
+# start with low cpu prio and lowest io prio
+# and if non-zero exit code, timeout before exit
+chpst -n +11 \
+  ionice -c2 -n7 \
+  borgmatic --verbosity 1 \
+  || (sleep 60 && exit 1)
+[ ! -d $(dirname "$TF") ] && mkdir -p $(dirname "$TF")
+touch "$TF"
